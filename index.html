@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projets étranges — @dr.arobase</title>
+    <link rel="icon" href="higuruma.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="scroll-progress"></div>
+<div class="custom-cursor"></div>
+<div class="cursor-dot"></div>
+<canvas id="particles"></canvas>
+<div class="scanlines"></div>
+
+<div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="page-wrapper">
+
+    <header>
+        <img src="pfp.gif" alt="avatar" class="avatar">
+        <div class="status-badge"><span class="status-dot"></span> en ligne</div>
+
+        <div class="glitch-wrapper">
+            <h1 class="glitch" data-glitch="@dr.arobase">@dr.arobase</h1>
+        </div>
+
+        <p class="subtitle-tag"><span class="typing"></span></p>
+
+        <div class="tags-row">
+            <span class="tag tag--cyan">HTML</span>
+            <span class="tag tag--purple">CSS</span>
+            <span class="tag tag--magenta">JS</span>
+            <span class="tag tag--white">Anime addict</span>
+            <span class="tag tag--cyan">Dév</span>
+            <span class="tag tag--magenta">Chaos</span>
+        </div>
+    </header>
+
+    <main>
+        <p class="section-label">Choisissez un projet, c'est un ordre !!!!</p>
+
+        <div class="project-grid">
+
+            <a href="https://dr-arobase.github.io/chips" class="project-card" data-reveal>
+                <span class="project-num">01</span>
+                <div class="project-info">
+                    <span class="project-title">Page de chips</span>
+                    <span class="project-desc">des formes bizarres en CSS</span>
+                </div>
+                <i class="fas fa-arrow-right project-arrow"></i>
+            </a>
+
+            <a href="https://dr-arobase.github.io/chips/pickachu.html" class="project-card" data-reveal>
+                <span class="project-num">02</span>
+                <div class="project-info">
+                    <span class="project-title">Pickachu</span>
+                    <span class="project-desc">mais pour le fun</span>
+                </div>
+                <i class="fas fa-arrow-right project-arrow"></i>
+            </a>
+
+            <a href="https://dr-arobase.github.io/Wiliam" class="project-card" data-reveal>
+                <span class="project-num">03</span>
+                <div class="project-info">
+                    <span class="project-title">Wiliam</span>
+                    <span class="project-desc"></span>
+                </div>
+                <i class="fas fa-arrow-right project-arrow"></i>
+            </a>
+            <div class="project-card project-card--soon" data-reveal>
+                <span class="project-num">04</span>
+                <div class="project-info">
+                    <span class="project-title">Bientôt...</span>
+                    <span class="project-desc">en construction</span>
+                </div>
+                <i class="fas fa-lock project-arrow"></i>
+            </div>
+
+        </div>
+
+        <!-- Boutons Mortal Kombat -->  
+        <div class="mk-buttons" data-reveal>
+            <p class="section-label" style="margin-bottom:12px;">danger zone</p>
+            <div class="mk-row">
+
+                <button class="mk-btn" data-audio="audioArobas" title="Appuie si t&apos;oses">
+                    <span class="mk-btn__icon"><i class="fas fa-skull-crossbones"></i></span>
+                    <span class="mk-btn__label">@dr.arobase</span>
+                    <span class="mk-btn__sub">annonceur MK</span>
+                </button>
+
+                <button class="mk-btn mk-btn--green" data-audio="audioBienv" title="Bienvenue bb">
+                    <span class="mk-btn__icon"><i class="fas fa-hand-wave"></i></span>
+                    <span class="mk-btn__label">BIENVENUE</span>
+                    <span class="mk-btn__sub">séries</span>
+                </button>
+
+                <button class="mk-btn mk-btn--gold" data-audio="audioMassi" title="GOAT confirmed">
+                    <span class="mk-btn__icon"><i class="fas fa-crown"></i></span>
+                    <span class="mk-btn__label">MASSI</span>
+                    <span class="mk-btn__sub">le goat</span>
+                </button>
+
+                <button class="mk-btn mk-btn--blue" data-audio="audioYokos" title="YOKOS...">
+                    <span class="mk-btn__icon"><i class="fas fa-water"></i></span>
+                    <span class="mk-btn__label">YOKOS</span>
+                    <span class="mk-btn__sub">society</span>
+                </button>
+
+                <button class="mk-btn mk-btn--welcome" data-audio="audioWelcome" title="Bienvenue dans l&apos;enfer">
+                    <span class="mk-btn__icon"><i class="fas fa-ghost"></i></span>
+                    <span class="mk-btn__label">WELCOME</span>
+                    <span class="mk-btn__sub">musique de fond</span>
+                </button>
+
+                <button class="mk-btn mk-btn--welcome21" data-audio="audioWelcome21" title="Welcome v2 ??">
+                    <span class="mk-btn__icon"><i class="fas fa-fire"></i></span>
+                    <span class="mk-btn__label">WELCOME 2</span>
+                    <span class="mk-btn__sub">la séquelle</span>
+                </button>
+
+                <button class="mk-btn mk-btn--copa" data-audio="audioCopa" title="Copa... Copacabana">
+                    <span class="mk-btn__icon"><i class="fas fa-music"></i></span>
+                    <span class="mk-btn__label">COPACABANA</span>
+                    <span class="mk-btn__sub">the banger</span>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="socials">
+            <a href="#" data-social="instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" data-social="threads"><i class="fab fa-threads"></i></a>
+            <a href="#" data-social="tiktok"><i class="fab fa-tiktok"></i></a>
+            <a href="#" data-social="twitter"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" data-social="discord"><i class="fab fa-discord"></i></a>
+            <a href="#" data-social="github"><i class="fab fa-github"></i></a>
+            <a href="#" data-social="soundcloud"><i class="fab fa-soundcloud"></i></a>
+            <a href="#" data-social="pinterest"><i class="fab fa-pinterest"></i></a>
+            <a href="#" data-social="twitch"><i class="fab fa-twitch"></i></a>
+        </div>
+    </main>
+
+    <footer>
+        <p>fait avec trop de caféine &nbsp;<i class="fas fa-coffee"></i></p>
+        <p class="visit-info">visite n° <span id="visit-count">...</span></p>
+    </footer>
+
+</div>
+
+<audio id="audioArobas"   style="display:none"><source src="[Mortal Kombat Announcer ]arobas.mp3"          type="audio/mpeg"></audio>
+<audio id="audioBienv"    style="display:none"><source src="[Mortal Kombat Announcer ]bienv......eries.mp3"  type="audio/mpeg"></audio>
+<audio id="audioMassi"    style="display:none"><source src="[Mortal Kombat Announcer ]Massi...... goat.mp3"  type="audio/mpeg"></audio>
+<audio id="audioYokos"    style="display:none"><source src="[Mortal Kombat Announcer ]YOKOS......ciety.mp3"  type="audio/mpeg"></audio>
+<audio id="audioWelcome"  style="display:none"><source src="Welcome.mp3"                                     type="audio/mpeg"></audio>
+<audio id="audioWelcome21" style="display:none"><source src="Welcome21.mp3"                                  type="audio/mpeg"></audio>
+<audio id="audioCopa"     style="display:none"><source src="Copacabana [QWV_XKdTi2c].mp3"                   type="audio/mpeg"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
+
