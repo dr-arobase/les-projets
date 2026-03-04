@@ -1,0 +1,33 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Deno
+.deno/
+
+# Editor configs
+.vscode/
+.idea/
+
+# Build / output
+dist/
+build/
+coverage/
+.cache/
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# Misc
+.history/
