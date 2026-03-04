@@ -81,8 +81,40 @@
             </a>
             <div class="project-card project-card--soon" data-reveal>
                 <span class="project-num">04</span>
+                <div class="project-info is-red">
+                    <span class="project-title">Arobase Encyclopédie</span>
+                    <span class="project-desc">en construction</span>
+                </div>
+                <i class="fas fa-lock project-arrow"></i>
+            </div>
+            <div class="project-card project-card--soon" data-reveal>
+                <span class="project-num">05</span>
                 <div class="project-info">
-                    <span class="project-title">Bientôt...</span>
+                    <span class="project-title">Moniteur en natation et en sauvetage</span>
+                    <span class="project-desc">en construction</span>
+                </div>
+                <i class="fas fa-lock project-arrow"></i>
+            </div>
+                        <div class="project-card project-card--soon" data-reveal>
+                <span class="project-num">06</span>
+                <div class="project-info">
+                    <span class="project-title">Asa mitaka <i class="fas fa-star"></i> <!--img src="asserts/images/Asa.png" alt="Asa Mitaka" class="project-thumb"--></span>
+                    <span class="project-desc">en construction</span>
+                </div>
+                <i class="fas fa-lock project-arrow"></i>
+            </div>
+                        <div class="project-card project-card--soon" data-reveal>
+                <span class="project-num">07</span>
+                <div class="project-info">
+                    <span class="project-title">Comment s'asseoir sur une chaise</span>
+                    <span class="project-desc">en construction</span>
+                </div>
+                <i class="fas fa-lock project-arrow"></i>
+            </div>
+                        <div class="project-card project-card--soon" data-reveal>
+                <span class="project-num">08</span>
+                <div class="project-info">
+                    <span class="project-title">Comment être un baka sigma</span>
                     <span class="project-desc">en construction</span>
                 </div>
                 <i class="fas fa-lock project-arrow"></i>
@@ -96,45 +128,50 @@
             <div class="mk-row">
 
                 <button class="mk-btn" data-audio="audioArobas" title="Appuie si t&apos;oses">
-                    <span class="mk-btn__icon"><i class="fas fa-skull-crossbones"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-skull-crossbones fa-bounce"></i></span>
                     <span class="mk-btn__label">@dr.arobase</span>
                     <span class="mk-btn__sub">annonceur MK</span>
                 </button>
 
                 <button class="mk-btn mk-btn--green" data-audio="audioBienv" title="Bienvenue bb">
-                    <span class="mk-btn__icon"><i class="fas fa-hand-wave"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-hand fa-bounce"></i></span>
                     <span class="mk-btn__label">BIENVENUE</span>
                     <span class="mk-btn__sub">séries</span>
                 </button>
 
                 <button class="mk-btn mk-btn--gold" data-audio="audioMassi" title="GOAT confirmed">
-                    <span class="mk-btn__icon"><i class="fas fa-crown"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-crown fa-bounce"></i></span>
                     <span class="mk-btn__label">MASSI</span>
                     <span class="mk-btn__sub">le goat</span>
                 </button>
 
                 <button class="mk-btn mk-btn--blue" data-audio="audioYokos" title="YOKOS...">
-                    <span class="mk-btn__icon"><i class="fas fa-water"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-water fa-bounce"></i></span>
                     <span class="mk-btn__label">YOKOS</span>
                     <span class="mk-btn__sub">society</span>
                 </button>
 
                 <button class="mk-btn mk-btn--welcome" data-audio="audioWelcome" title="Bienvenue dans l&apos;enfer">
-                    <span class="mk-btn__icon"><i class="fas fa-ghost"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-ghost fa-bounce"></i></span>
                     <span class="mk-btn__label">WELCOME</span>
                     <span class="mk-btn__sub">musique de fond</span>
                 </button>
 
                 <button class="mk-btn mk-btn--welcome21" data-audio="audioWelcome21" title="Welcome v2 ??">
-                    <span class="mk-btn__icon"><i class="fas fa-fire"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-fire fa-bounce"></i></span>
                     <span class="mk-btn__label">WELCOME 2</span>
                     <span class="mk-btn__sub">la séquelle</span>
                 </button>
 
                 <button class="mk-btn mk-btn--copa" data-audio="audioCopa" title="Copa... Copacabana">
-                    <span class="mk-btn__icon"><i class="fas fa-music"></i></span>
+                    <span class="mk-btn__icon"><i class="fas fa-music fa-bounce"></i></span>
                     <span class="mk-btn__label">COPACABANA</span>
                     <span class="mk-btn__sub">the banger</span>
+                </button>
+                <button class="mk-btn mk-btn--aizen" id="btnAizen" title="Kyōka Suigetsu">
+                    <span class="mk-btn__icon"><i class="fas fa-eye fa-bounce"></i></span>
+                    <span class="mk-btn__label">KYOKA SUIGETSU</span>
+                    <span class="mk-btn__sub">Aizen</span>
                 </button>
 
             </div>
@@ -182,6 +219,16 @@
 <audio id="audioWelcome"  style="display:none"><source src="asserts/audio/Welcome.mp3"                                     type="audio/mpeg"></audio>
 <audio id="audioWelcome21" style="display:none"><source src="asserts/audio/Welcome21.mp3"                                  type="audio/mpeg"></audio>
 <audio id="audioCopa"     style="display:none"><source src="asserts/audio/Copacabana [QWV_XKdTi2c].mp3"                   type="audio/mpeg"></audio>
+<!-- Overlay Aizen (Kyōka Suigetsu) -->
+<div id="aizen-overlay">
+    <button class="aizen-close" id="aizenClose" aria-label="Fermer">&#10005; FERMER</button>
+    <!-- Vidéo cachée : source de pixels pour le chroma key (pas affichée directement) -->
+    <video id="aizenVideo" playsinline>
+        <source src="asserts/video/Aizen.mp4" type="video/mp4">
+    </video>
+    <!-- Canvas : affichage du chroma key — fond vert → transparent -->
+    <canvas id="aizenCanvas" aria-hidden="true"></canvas>
+</div>
 
 <script src="js/script.js"></script>
 </body>

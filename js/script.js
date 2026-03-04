@@ -382,7 +382,198 @@ function triggerKonami() {
 }
 
 /* ================================================
-   COMPTEUR DE VISITES (localStorage)
+   BOUTON AIZEN — Kyōka Suigetsu
+   — Fond noir total + texte lettre par lettre + chroma key canvas.
+   — Vidéo fond vert : le vert est rendu transparent, le noir de l'overlay s'affiche derrière.
+   — Esc ou le bouton ✕ ferment l'overlay.
+   ================================================ */
+const btnAizen     = document.getElementById('btnAizen');
+const aizenOverlay = document.getElementById('aizen-overlay');
+const aizenVideo   = document.getElementById('aizenVideo');
+const aizenClose   = document.getElementById('aizenClose');
+
+// Canvas pour le chroma key (fond vert → transparent)
+const aizenCanvas  = document.getElementById('aizenCanvas');
+const aizenCtx     = aizenCanvas
+  ? aizenCanvas.getContext('2d', { willReadFrequently: true }) // willReadFrequently = optimise getImageData
+  : null;
+let   aizenRafId   = 0; // ID de requestAnimationFrame (pour pouvoir l'annuler)
+
+if (btnAizen && aizenOverlay) {
+  /* startChroma() — démarre la boucle chroma key (fond vert → transparent)
+     Nous supprimons le texte et les shards par demande de l'utilisateur. */
+  function startChroma() {
+    if (!aizenCtx) return;
+    let detectedSrcCrop = null; // { x, y, w, h } in video pixel coords (to remove encoded black bars)
+
+    const detectBlackBars = (vw, vh) => {
+      try {
+        const dw = 320; // downscale for fast analysis
+        const dh = Math.max(8, Math.round(dw * vh / vw));
+        const dCanvas = document.createElement('canvas');
+        dCanvas.width = dw; dCanvas.height = dh;
+        const dCtx = dCanvas.getContext('2d');
+        dCtx.drawImage(aizenVideo, 0, 0, dw, dh);
+
+        const rowThreshold = 12; // pixel brightness threshold (0-255)
+        const data = dCtx.getImageData(0, 0, dw, dh).data;
+
+        const isRowDark = (ry) => {
+          let sum = 0;
+          const offset = ry * dw * 4;
+          for (let x = 0; x < dw; x++) {
+            const i = offset + x * 4;
+            sum += (data[i] + data[i + 1] + data[i + 2]) / 3;
+          }
+          const avg = sum / dw;
+          return avg < rowThreshold;
+        };
+
+        let top = 0, bottom = dh - 1;
+        while (top < dh && isRowDark(top)) top++;
+        while (bottom > 0 && isRowDark(bottom)) bottom--;
+
+        // If too small crop, ignore
+        if (top === 0 && bottom === dh - 1) return { x: 0, y: 0, w: vw, h: vh };
+
+        const topRatio = top / dh;
+        const bottomRatio = (dh - 1 - bottom) / dh;
+        const srcY = Math.round(topRatio * vh);
+        const srcH = Math.round((1 - topRatio - bottomRatio) * vh);
+        return { x: 0, y: srcY, w: vw, h: Math.max(2, srcH) };
+      } catch (err) {
+        return { x: 0, y: 0, w: vw, h: vh };
+      }
+    };
+
+    const startRender = () => {
+      // Canvas = résolution de l'écran (pas de la vidéo) pour couvrir tout l'écran
+      aizenCanvas.width  = window.innerWidth;
+      aizenCanvas.height = window.innerHeight;
+      aizenCanvas.classList.add('visible');
+      // Overlay interactable + bouton visible seulement quand la vidéo joue
+      aizenOverlay.classList.add('video-playing');
+      // Chroma key thresholds (agressif pour retirer le maximum de vert)
+      const KEY_MIN   = 30;  // valeur minimale du canal vert pour être considéré
+      const KEY_RATIO = 1.1; // le vert doit dominer rouge et bleu d'au moins 10 %
+      // Detect black bars once when metadata available
+      const vw = aizenVideo.videoWidth || 1;
+      const vh = aizenVideo.videoHeight || 1;
+      detectedSrcCrop = detectBlackBars(vw, vh);
+
+      // Ensure crop is sane
+      if (!detectedSrcCrop || detectedSrcCrop.w <= 0 || detectedSrcCrop.h <= 0) {
+        detectedSrcCrop = { x: 0, y: 0, w: vw, h: vh };
+      }
+
+      function chromaRender() {
+        if (!aizenVideo.paused && !aizenVideo.ended) {
+          // Cover mode : étire la vidéo pour remplir tout le canvas sans barres noires
+          const cw = aizenCanvas.width, ch = aizenCanvas.height;
+          // Start from detected source crop (removes encoded black bars)
+          let sx = detectedSrcCrop.x, sy = detectedSrcCrop.y, sw = detectedSrcCrop.w, sh = detectedSrcCrop.h;
+
+          // Now apply cover logic on the source crop vs canvas aspect ratio
+          const srcRatio = sw / sh;
+          const canvasRatio = cw / ch;
+          if (srcRatio > canvasRatio) {
+            // source wider -> crop sides
+            const newSw = Math.round(sh * canvasRatio);
+            sx = sx + Math.round((sw - newSw) / 2);
+            sw = newSw;
+          } else if (srcRatio < canvasRatio) {
+            // source taller -> crop top/bottom
+            const newSh = Math.round(sw / canvasRatio);
+            sy = sy + Math.round((sh - newSh) / 2);
+            sh = newSh;
+          }
+
+          // Draw the selected source rect to fill the canvas (cover)
+          aizenCtx.drawImage(aizenVideo, sx, sy, sw, sh, 0, 0, cw, ch);
+
+          const imgData = aizenCtx.getImageData(0, 0, aizenCanvas.width, aizenCanvas.height);
+          const d = imgData.data;
+
+          for (let i = 0; i < d.length; i += 4) {
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+
+            // Chroma key : vert dominant → transparent
+            if (g > KEY_MIN && g > r * KEY_RATIO && g > b * KEY_RATIO) {
+              d[i + 3] = 0;
+            } else {
+              // Spill suppression : pixels légèrement verts → neutraliser sans effacer
+              if (g > r && g > b) {
+                const avg = (r + b) / 2;
+                d[i + 1] = Math.round(avg * 0.85 + g * 0.15);
+              }
+            }
+          }
+
+          aizenCtx.putImageData(imgData, 0, 0);
+        }
+        if (!aizenVideo.ended) aizenRafId = requestAnimationFrame(chromaRender);
+      }
+
+      aizenVideo.currentTime = 0;
+      aizenVideo.play().catch(() => {});
+      aizenRafId = requestAnimationFrame(chromaRender);
+    };
+
+    if (aizenVideo.readyState >= 1) startRender();
+    else aizenVideo.addEventListener('loadedmetadata', startRender, { once: true });
+  }
+
+  function openAizen() {
+    // Arrête tous les sons MK en cours
+    document.querySelectorAll('.mk-btn').forEach(b => {
+      const a = document.getElementById(b.dataset.audio);
+      if (a && !a.paused) { a.pause(); a.currentTime = 0; }
+      b.classList.remove('playing');
+    });
+
+    // Active le fond noir
+    aizenOverlay.classList.add('active');
+    // title removed per user request
+    aizenCanvas.classList.remove('visible');
+    // Nettoie le canvas de la session précédente
+    cancelAnimationFrame(aizenRafId);
+    if (aizenCtx) aizenCtx.clearRect(0, 0, aizenCanvas.width, aizenCanvas.height);
+
+      // Start chroma key immediately (no shards, no title)
+      startChroma();
+  }
+
+  function closeAizen() {
+    aizenOverlay.classList.remove('active');
+    aizenOverlay.classList.remove('video-playing');
+    // Arrête la boucle chroma key
+    cancelAnimationFrame(aizenRafId);
+    aizenVideo.pause();
+    aizenVideo.currentTime = 0;
+    aizenCanvas.classList.remove('visible');
+    if (aizenCtx) aizenCtx.clearRect(0, 0, aizenCanvas.width, aizenCanvas.height);
+    // Nettoie les éclats CSS si visible pendant la fermeture
+    const shatterEl = document.getElementById('aizen-shatter');
+    if (shatterEl) shatterEl.innerHTML = '';
+  }
+
+  btnAizen.addEventListener('click', openAizen);
+  aizenClose.addEventListener('click', closeAizen);
+  if (aizenVideo) aizenVideo.addEventListener('ended', closeAizen);
+
+  // Fermer aussi au clic sur le fond noir (hors vidéo et titre)
+  aizenOverlay.addEventListener('click', e => {
+    if (e.target === aizenOverlay) closeAizen();
+  });
+
+  // Fermer avec Échap
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && aizenOverlay.classList.contains('active')) closeAizen();
+  });
+}
+
+/* ================================================
+   SECTION 21 — COMPTEUR DE VISITES
    — localStorage = mini-stockage dans le navigateur.
    — Il persiste après fermeture (pas de serveur).
    — ATTENTION : c'est local, pas un vrai compteur global.

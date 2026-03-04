@@ -509,6 +509,21 @@ h3 {
     color: #fff;
 }
 
+/* Thumbnail next to project titles (Asa mitaka) */
+/*.project-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    margin-left: 10px;
+    vertical-align: middle;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+@media (max-width: 768px) {
+    .project-thumb { width: 32px; height: 32px; margin-left: 8px; border-radius: 6px; }
+}*/
+
 .project-desc {
     font-size: 0.9rem;
     color: rgba(255,255,255,0.6);
@@ -576,6 +591,120 @@ h3 {
         transform: translateY(0);
     }
 }
+
+/* ==========================================================
+   BOUTON MK — variante Aizen (or pâle / blanc)
+   ========================================================== */
+.mk-btn--aizen {
+    background: rgba(255, 240, 180, 0.04);
+    border-color: rgba(255, 220, 100, 0.3);
+}
+.mk-btn--aizen::before {
+    background: radial-gradient(circle at 50% 0%, rgba(255,220,100,0.18) 0%, transparent 70%);
+}
+.mk-btn--aizen:hover {
+    background: rgba(255, 220, 100, 0.1);
+    border-color: rgba(255, 220, 100, 0.65);
+    box-shadow: 0 0 30px rgba(255,220,100,0.3), 0 0 60px rgba(255,220,100,0.1);
+}
+.mk-btn--aizen .mk-btn__icon { filter: drop-shadow(0 0 8px rgba(255,220,100,0.9)); }
+
+
+/* ==========================================================
+   OVERLAY AIZEN — Kyōka Suigetsu
+   — Fond noir total, texte lettre par lettre, vidéo centrée.
+   ========================================================== */
+#aizen-overlay {
+    position: fixed;
+    inset: 0;
+    /* overlay background removed per user request */
+    background: transparent;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+}
+#aizen-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Titre "Kyōka Suigetsu" */
+.aizen-title { display: none !important; }
+/* Chaque lettre est animée individuellement */
+.aizen-title .char {
+    display: inline-block;
+    opacity: 0;
+    animation: aizenChar 0.5s ease forwards;
+}
+@keyframes aizenChar {
+    from { opacity: 0; transform: translateY(-12px); filter: blur(8px); }
+    to   { opacity: 1; transform: translateY(0);      filter: blur(0);   }
+}
+
+/* Vidéo Aizen */
+/* Vidéo cachée — source pixels uniquement (chroma key) */
+#aizenVideo {
+    display: none !important;
+}
+
+/* Canvas plein écran total — toujours fixé sur toute la fenêtre */
+#aizenCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    background: transparent;
+    z-index: 10002;
+    mix-blend-mode: screen; /* noir(0,0,0) = transparent en screen */
+    pointer-events: none;
+}
+#aizenCanvas.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* --- Conteneur des éclats de verre --- */
+/* shards removed per user request - keep selectors hidden to avoid leftover DOM effects */
+#aizen-shatter { display: none !important; }
+.aizen-shard   { display: none !important; }
+
+/* Bouton fermer — caché avant que la vidéo joue, visible après */
+.aizen-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius-pill);
+    color: rgba(255,255,255,0.45);
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    padding: 7px 18px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    z-index: 10010;
+    opacity: 0;
+    pointer-events: none;
+    transition: color 0.2s ease, border-color 0.2s ease, opacity 0.4s ease;
+}
+.aizen-close:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.7);
+}
+/* Apparaît seulement quand la vidéo est en cours */
+#aizen-overlay.video-playing .aizen-close {
+    opacity: 1;
+    pointer-events: all;
+}
+
 
 /* ==========================================================
    23. RESPONSIVE MOBILE (≤ 768 px)
@@ -1227,3 +1356,4 @@ Good for menu buttons though, this would use a transform animation instead of a 
     75%  { box-shadow: 0 0 0 5px hsl(270,100%,60%), 0 0 35px hsl(270,100%,60%); }
     100% { box-shadow: 0 0 0 5px hsl(360,100%,60%), 0 0 35px hsl(360,100%,60%); }
 }
+
