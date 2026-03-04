@@ -41,9 +41,9 @@ if (ring && dot) {
    BARRE DE PROGRESSION DE SCROLL
    ================================================ */
 const progressBar = document.querySelector('.scroll-progress');
-window.addEventListener('scroll', () => {
+globalThis.addEventListener('scroll', () => {
   if (!progressBar) return;
-  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  const pct = globalThis.scrollY / (document.body.scrollHeight - globalThis.innerHeight) * 100;
   progressBar.style.width = Math.min(pct, 100) + '%';
 }, { passive: true });
 
@@ -54,14 +54,14 @@ const canvas = document.getElementById('particles');
 if (canvas) {
   const ctx = canvas.getContext('2d');
   let W, H;
-  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+  const resize = () => { W = canvas.width = globalThis.innerWidth; H = canvas.height = globalThis.innerHeight; };
   resize();
-  window.addEventListener('resize', resize, { passive: true });
+  globalThis.addEventListener('resize', resize, { passive: true });
 
   const HUES = [180, 300, 270];
   const particles = Array.from({ length: 100 }, () => ({
-    x:  Math.random() * window.innerWidth,
-    y:  Math.random() * window.innerHeight,
+    x:  Math.random() * globalThis.innerWidth,
+    y:  Math.random() * globalThis.innerHeight,
     vx: (Math.random() - 0.5) * 0.35,
     vy: (Math.random() - 0.5) * 0.35,
     r:  Math.random() * 1.6 + 0.3,
@@ -212,8 +212,8 @@ document.querySelectorAll('.socials a').forEach(icon => {
    ================================================ */
 const orbs = document.querySelectorAll('.orb');
 document.addEventListener('mousemove', e => {
-  const cx = e.clientX / window.innerWidth  - 0.5;
-  const cy = e.clientY / window.innerHeight - 0.5;
+  const cx = e.clientX / globalThis.innerWidth  - 0.5;
+  const cy = e.clientY / globalThis.innerHeight - 0.5;
   orbs.forEach((orb, i) => {
     const d = (i + 1) * 22;
     orb.style.transform = `translate(${cx * d}px, ${cy * d}px)`;
