@@ -1,0 +1,20 @@
+name: Actions diagnostic
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: ["main"]
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print info
+        run: |
+          echo "Runner: $RUNNER_OS"
+          echo "Commit: $GITHUB_SHA"
+          echo "Trigger: $GITHUB_EVENT_NAME"
+          echo "This confirms Actions can run and will appear in the Actions tab."
