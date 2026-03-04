@@ -517,6 +517,10 @@ const startChroma = () => {
     aizenVideo.play().catch(() => {});
     aizenRafId = requestAnimationFrame(chromaRender);
   };
+
+  // Start rendering when metadata is available
+  if (aizenVideo.readyState >= 1) startRender();
+  else aizenVideo.addEventListener('loadedmetadata', startRender, { once: true });
 };
 
 const openAizen = () => {
