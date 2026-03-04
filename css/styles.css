@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+/* Google Fonts chargée via <link> dans le HTML */
 
 * {
     margin: 0;
@@ -18,7 +18,7 @@
 body {
     font-family: 'Space Grotesk', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     /* slightly lighter overlay so background image shows through */
-    background: linear-gradient(160deg, rgba(12, 2, 30, 0.82) 0%, rgba(0, 0, 0, 0.86) 100%), url('chainsaw-man.gif') center/cover fixed;
+    background: linear-gradient(160deg, rgba(12, 2, 30, 0.82) 0%, rgba(0, 0, 0, 0.86) 100%), url('../asserts/images/chainsaw-man.gif') center/cover fixed;
     min-height: 100vh;
     color: #fff;
     cursor: none;
@@ -488,15 +488,30 @@ h3 {
 .socials a:hover { color: #fff; filter: drop-shadow(0 0 8px currentColor); }
 
 /* couleurs par plateforme */
-.socials a[data-social="instagram"]:hover { color: #e1306c; }
-.socials a[data-social="threads"]:hover   { color: #aaa; }
-.socials a[data-social="tiktok"]:hover    { color: #69c9d0; }
-.socials a[data-social="twitter"]:hover   { color: #1da1f2; }
-.socials a[data-social="discord"]:hover   { color: #7289da; }
-.socials a[data-social="github"]:hover    { color: #f0f6fc; }
-.socials a[data-social="soundcloud"]:hover { color: #ff5500; }
-.socials a[data-social="pinterest"]:hover  { color: #e60023; }
-.socials a[data-social="twitch"]:hover     { color: #9146ff; }
+.socials a[data-social="instagram"]:hover     { color: #e1306c; }
+.socials a[data-social="threads"]:hover       { color: #aaa; }
+.socials a[data-social="tiktok"]:hover        { color: #69c9d0; }
+.socials a[data-social="twitter"]:hover       { color: #1da1f2; }
+.socials a[data-social="youtube"]:hover       { color: #ff0000; }
+.socials a[data-social="discord"]:hover       { color: #7289da; }
+.socials a[data-social="github"]:hover        { color: #f0f6fc; }
+.socials a[data-social="twitch"]:hover        { color: #9146ff; }
+.socials a[data-social="soundcloud"]:hover    { color: #ff5500; }
+.socials a[data-social="pinterest"]:hover     { color: #e60023; }
+.socials a[data-social="reddit"]:hover        { color: #ff4500; }
+.socials a[data-social="facebook"]:hover      { color: #1877f2; }
+.socials a[data-social="linkedin"]:hover      { color: #0a66c2; }
+.socials a[data-social="snapchat"]:hover      { color: #fffc00; }
+.socials a[data-social="telegram"]:hover      { color: #0088cc; }
+.socials a[data-social="medium"]:hover        { color: #00ab6c; }
+.socials a[data-social="mastodon"]:hover      { color: #6364ff; }
+.socials a[data-social="dribbble"]:hover      { color: #ea4c89; }
+.socials a[data-social="behance"]:hover       { color: #1769ff; }
+.socials a[data-social="vimeo"]:hover         { color: #1ab7ea; }
+.socials a[data-social="slack"]:hover         { color: #e01e5a; }
+.socials a[data-social="stack-overflow"]:hover { color: #f48024; }
+.socials a[data-social="rss"]:hover           { color: #f26522; }
+.socials a[data-social="email"]:hover         { color: #00ffcc; }
 
 .avatar {
     width: 260px;
@@ -633,10 +648,9 @@ h3 {
 .link--bottom {
   display: inline-block;
   clip-path: polygon(0% 65%, 100% 40%, 100% 110%, 0% 110%);
-  text-decoration: underline;
   color: rgb(255, 255, 255);
-  transition: color 0.5s ease 0.22s, background-position 0.2s ease 0.22s;
   text-decoration: none;
+  transition: color 0.5s ease 0.22s, background-position 0.2s ease 0.22s;
   background-size: 200% 8%;
   background-position: left bottom;
   background-repeat: no-repeat;
@@ -976,6 +990,7 @@ Good for menu buttons though, this would use a transform animation instead of a 
 .tag--magenta { color: #ff00aa; border-color: rgba(255,0,170,0.3); background: rgba(255,0,170,0.05); }
 .tag--purple  { color: #a855f7; border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.05); }
 .tag--white   { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); }
+.tag--blue    { color: #1da1f2; border-color: rgba(29,161,242,0.3); background: rgba(29,161,242,0.05); }
 
 /* =============================================
    KONAMI CODE
