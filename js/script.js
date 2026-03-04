@@ -5,117 +5,149 @@
 
 'use strict';
 
-/* ── Shared mouse position ─────────────────────── */
-let MX = -300, MY = -300;
+/* ── Position de la souris (partagée par tout le fichier) ─ */
+// On stock la position X/Y de la souris dans deux variables globales.
+// Elles changent à chaque déplacement de souris.
+let MX = -300, MY = -300;  // -300 = hors écran au départ (curseur caché)
 document.addEventListener('mousemove', e => { MX = e.clientX; MY = e.clientY; });
 
 /* ================================================
    CURSEUR DEUX PARTIES  (ring lent + dot précis)
+   — .custom-cursor = anneau qui suit la souris avec
+     un léger retard (lerp = interpolation linéaire).
+   — .cursor-dot     = point collé immédiatement.
    ================================================ */
 const ring = document.querySelector('.custom-cursor');
 const dot  = document.querySelector('.cursor-dot');
 
 if (ring && dot) {
+  // Position actuelle du ring (commence hors écran)
   let rx = -300, ry = -300;
 
   (function loop() {
+    // Lerp : on avance de 13 % de la distance restante chaque frame.
+    // Plus c'est petit (ex. 0.05), plus le ring est lent.
     rx += (MX - rx) * 0.13;
     ry += (MY - ry) * 0.13;
     ring.style.left = rx + 'px';
     ring.style.top  = ry + 'px';
+    // Le dot suit immédiatement (pas de lerp)
     dot.style.left  = MX + 'px';
     dot.style.top   = MY + 'px';
+    // requestAnimationFrame appelle la fonction à chaque frame (~60 fps)
     requestAnimationFrame(loop);
   })();
 
+  // Agrandit le ring au survol de liens/boutons/cartes
   document.querySelectorAll('a, button, .project-card').forEach(el => {
     el.addEventListener('mouseenter', () => { ring.classList.add('active'); dot.classList.add('active'); });
     el.addEventListener('mouseleave', () => { ring.classList.remove('active'); dot.classList.remove('active'); });
   });
 
+  // Cache le curseur quand la souris quitte la fenêtre
   document.addEventListener('mouseleave', () => { ring.style.opacity = '0'; dot.style.opacity = '0'; });
   document.addEventListener('mouseenter', () => { ring.style.opacity = '1'; dot.style.opacity = '1'; });
 }
 
 /* ================================================
    BARRE DE PROGRESSION DE SCROLL
+   — Calcule le % de page défilé et applique width.
    ================================================ */
 const progressBar = document.querySelector('.scroll-progress');
 globalThis.addEventListener('scroll', () => {
   if (!progressBar) return;
+  // scrollY = pixels défilés | scrollHeight - innerHeight = max scrollable
   const pct = globalThis.scrollY / (document.body.scrollHeight - globalThis.innerHeight) * 100;
   progressBar.style.width = Math.min(pct, 100) + '%';
-}, { passive: true });
+}, { passive: true }); // passive: true = ne bloque pas le scroll (perf)
 
 /* ================================================
    PARTICULES INTELLIGENTES  (répulsion + lignes)
+   — On dessine sur un <canvas> plein écran.
+   — Chaque particule fuit la souris à moins de 130 px.
+   — Les particules proches sont reliées par des lignes.
    ================================================ */
 const canvas = document.getElementById('particles');
 if (canvas) {
-  const ctx = canvas.getContext('2d');
-  let W, H;
+  const ctx = canvas.getContext('2d'); // '2d' = dessin 2D classique
+  let W, H; // largeur et hauteur du canvas
+
+  // Redimensionne le canvas si la fenêtre change de taille
   const resize = () => { W = canvas.width = globalThis.innerWidth; H = canvas.height = globalThis.innerHeight; };
   resize();
   globalThis.addEventListener('resize', resize, { passive: true });
 
-  const HUES = [180, 300, 270];
+  const HUES = [180, 300, 270]; // teintes HSL : cyan, rose, violet
+
+  // Génère 100 particules avec des propriétés aléatoires
   const particles = Array.from({ length: 100 }, () => ({
-    x:  Math.random() * globalThis.innerWidth,
-    y:  Math.random() * globalThis.innerHeight,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: (Math.random() - 0.5) * 0.35,
-    r:  Math.random() * 1.6 + 0.3,
-    a:  Math.random() * 0.55 + 0.15,
-    hue: HUES[Math.floor(Math.random() * HUES.length)],
+    x:  Math.random() * globalThis.innerWidth,   // position X
+    y:  Math.random() * globalThis.innerHeight,  // position Y
+    vx: (Math.random() - 0.5) * 0.35,           // vitesse X (-0.175 à +0.175)
+    vy: (Math.random() - 0.5) * 0.35,           // vitesse Y
+    r:  Math.random() * 1.6 + 0.3,              // rayon (0.3 à 1.9 px)
+    a:  Math.random() * 0.55 + 0.15,            // opacité
+    hue: HUES[Math.floor(Math.random() * HUES.length)], // couleur aléatoire
   }));
 
-  const REPEL_R = 130;
+  const REPEL_R = 130; // rayon de répulsion en pixels
 
   (function draw() {
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H); // efface le frame précédent
+
     particles.forEach(p => {
+      // — Répulsion souris —
       const dx = p.x - MX, dy = p.y - MY;
-      const d2 = dx * dx + dy * dy;
-      if (d2 < REPEL_R * REPEL_R) {
+      const d2 = dx * dx + dy * dy; // distance² (plus rapide que Math.sqrt)
+      if (d2 < REPEL_R * REPEL_R) { // particule trop proche
         const d = Math.sqrt(d2);
-        const force = (REPEL_R - d) / REPEL_R;
-        p.vx += (dx / d) * force * 0.65;
+        const force = (REPEL_R - d) / REPEL_R; // force 0→1 selon la distance
+        p.vx += (dx / d) * force * 0.65; // pousse vers l'extérieur
         p.vy += (dy / d) * force * 0.65;
       }
+
+      // Friction douce (0.97) pour éviter l'accélération infinie
       p.vx *= 0.97; p.vy *= 0.97;
+
+      // Déplacement + boucle sur les bords (wrapping)
       p.x = (p.x + p.vx + W) % W;
       p.y = (p.y + p.vy + H) % H;
 
+      // Dessine la particule
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur  = 8;
       ctx.shadowColor = `hsla(${p.hue},100%,70%,0.7)`;
       ctx.fillStyle   = `hsla(${p.hue},100%,70%,${p.a})`;
       ctx.fill();
     });
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = 0; // réinitialise l'ombre pour les lignes
 
+    // Relie les particules proches par des lignes semi-transparentes
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
         const d  = Math.sqrt(dx * dx + dy * dy);
-        if (d < 95) {
+        if (d < 95) { // seulement si moins de 95 px
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
+          // Opacité décroissante selon la distance
           ctx.strokeStyle = `rgba(0,255,220,${0.09 * (1 - d / 95)})`;
           ctx.lineWidth   = 0.5;
           ctx.stroke();
         }
       }
     }
-    requestAnimationFrame(draw);
+    requestAnimationFrame(draw); // boucle infinie
   })();
 }
 
 /* ================================================
    TYPING — rotation de phrases
+   — Machine à états simple :
+     del=false → on tape   |  del=true → on efface.
    ================================================ */
 const typingEl = document.querySelector('.typing');
 if (typingEl) {
@@ -129,30 +161,38 @@ if (typingEl) {
     'étudiant en informatique',
     'fait avec trop de café',
   ];
-  let pi = 0, ci = 0, del = false;
+  let pi  = 0,     // index de la phrase courante
+      ci  = 0,     // nombre de caractères affichés
+      del = false; // true = on efface
 
   (function type() {
-    const ph = phrases[pi];
+    const ph = phrases[pi]; // phrase courante
     if (!del) {
+      // Mode frappe : ajoute un caractère
       typingEl.textContent = ph.slice(0, ++ci);
-      if (ci === ph.length) { del = true; setTimeout(type, 2400); return; }
+      if (ci === ph.length) { del = true; setTimeout(type, 2400); return; } // pause avant d'effacer
       setTimeout(type, 55);
     } else {
+      // Mode effacement : retire un caractère
       typingEl.textContent = ph.slice(0, --ci);
       if (ci === 0) { del = false; pi = (pi + 1) % phrases.length; setTimeout(type, 450); return; }
-      setTimeout(type, 28);
+      setTimeout(type, 28); // effacement plus rapide que la frappe
     }
   })();
 }
 
 /* ================================================
    REVEAL AU SCROLL
+   — IntersectionObserver observe quand un élément
+     entre dans le viewport. threshold: 0.1 = dès
+     que 10 % de l'élément est visible, on l'anime.
    ================================================ */
 const io = new IntersectionObserver(entries => {
   entries.forEach((entry, i) => {
     if (entry.isIntersecting) {
+      // Délai progressif si plusieurs éléments arrivent ensemble
       setTimeout(() => entry.target.classList.add('revealed'), i * 75);
-      io.unobserve(entry.target);
+      io.unobserve(entry.target); // arrêt de l'observation (animation unique)
     }
   });
 }, { threshold: 0.1 });
@@ -160,70 +200,88 @@ document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
 
 /* ================================================
    TILT 3D + SHEEN sur les cartes
+   — x/y = position de la souris relative à la carte,
+     normalisée de -0.5 (bord gauche) à +0.5 (droit).
+   — On applique rotateX/Y proportionnellement.
    ================================================ */
 document.querySelectorAll('.project-card:not(.project-card--soon)').forEach(card => {
   card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width  - 0.5;
+    const r = card.getBoundingClientRect(); // taille et position de la carte
+    const x = (e.clientX - r.left) / r.width  - 0.5; // -0.5 à +0.5
     const y = (e.clientY - r.top)  / r.height - 0.5;
+    // Rotation max 9° sur chaque axe
     card.style.transform = `perspective(700px) rotateX(${-y * 9}deg) rotateY(${x * 9}deg) translateY(-4px) scale(1.02)`;
+    // Coordonnées du reflet (utilisées par --sheen-x/--sheen-y en CSS)
     const px = ((e.clientX - r.left) / r.width  * 100).toFixed(1);
     const py = ((e.clientY - r.top)  / r.height * 100).toFixed(1);
     card.style.setProperty('--sheen-x', px + '%');
     card.style.setProperty('--sheen-y', py + '%');
   });
-  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; }); // réinitialise
 });
 
 /* ================================================
    RIPPLE AU CLIC
+   — Crée un <span class="ripple"> centré sur le clic.
+   — L'animation CSS le fait s'étendre puis disparaître.
    ================================================ */
 document.querySelectorAll('.project-card:not(.project-card--soon)').forEach(card => {
   card.addEventListener('click', e => {
     const r   = card.getBoundingClientRect();
-    const sz  = Math.max(r.width, r.height);
+    const sz  = Math.max(r.width, r.height); // taille du cercle
     const rip = document.createElement('span');
     rip.className = 'ripple';
+    // Centre le span sur la position du clic
     rip.style.cssText = `width:${sz}px;height:${sz}px;left:${e.clientX-r.left-sz/2}px;top:${e.clientY-r.top-sz/2}px`;
     card.appendChild(rip);
-    rip.addEventListener('animationend', () => rip.remove());
+    rip.addEventListener('animationend', () => rip.remove()); // nettoyage auto après animation
   });
 });
 
 /* ================================================
    ICÔNES SOCIALES — MAGNÉTISME
+   — L'icône attire légèrement vers la souris (40 %),
+     puis revient avec une transition "rebond" fluide.
    ================================================ */
 document.querySelectorAll('.socials a').forEach(icon => {
   icon.addEventListener('mousemove', e => {
     const r = icon.getBoundingClientRect();
+    // Décalage = (souris - centre de l'icône) * 40 %
     const x = (e.clientX - r.left - r.width  / 2) * 0.4;
     const y = (e.clientY - r.top  - r.height / 2) * 0.4;
     icon.style.transform = `translate(${x}px,${y}px) scale(1.35)`;
   });
   icon.addEventListener('mouseleave', () => {
-    icon.style.transition = 'transform 0.4s cubic-bezier(0.23,1,0.32,1)';
+    icon.style.transition = 'transform 0.4s cubic-bezier(0.23,1,0.32,1)'; // retour "rebond"
     icon.style.transform  = 'translate(0,0) scale(1)';
-    setTimeout(() => icon.style.transition = '', 400);
+    setTimeout(() => icon.style.transition = '', 400); // réinitialise la transition
   });
 });
 
 /* ================================================
    PARALLAXE — orbes suivent la souris
+   — cx/cy valent de -0.5 à +0.5 selon la position
+     de la souris dans la fenêtre.
+   — Chaque orbe se décale d'un montant différent
+     pour créer un effet de profondeur.
    ================================================ */
 const orbs = document.querySelectorAll('.orb');
 document.addEventListener('mousemove', e => {
-  const cx = e.clientX / globalThis.innerWidth  - 0.5;
+  const cx = e.clientX / globalThis.innerWidth  - 0.5; // -0.5 à +0.5
   const cy = e.clientY / globalThis.innerHeight - 0.5;
   orbs.forEach((orb, i) => {
-    const d = (i + 1) * 22;
+    const d = (i + 1) * 22; // décalage : 22px, 44px, 66px (profondeur)
     orb.style.transform = `translate(${cx * d}px, ${cy * d}px)`;
   });
 }, { passive: true });
 
 /* ================================================
    BOUTONS MORTAL KOMBAT
+   — Chaque bouton joue un son unique (data-audio).
+   — Cliquer sur un bouton déjà actif l'arrête.
+   — La couleur du ripple dépend de la variante CSS.
    ================================================ */
-// Couleurs ripple par variante
+// Table de correspondance : classe CSS → couleur de ripple
 const MK_RIPPLE_COLORS = {
   'mk-btn--green':    'rgba(0,200,80,0.35)',
   'mk-btn--gold':     'rgba(255,200,0,0.35)',
@@ -234,32 +292,36 @@ const MK_RIPPLE_COLORS = {
 };
 
 document.querySelectorAll('.mk-btn').forEach(btn => {
-  const audioId = btn.dataset.audio;
+  const audioId = btn.dataset.audio; // récupère l'id depuis data-audio="..."
   const audio   = document.getElementById(audioId);
-  if (!audio) return;
+  if (!audio) return; // pas d'audio = on saute
 
+  // Agrandit le curseur au survol
   btn.addEventListener('mouseenter', () => { ring?.classList.add('active'); dot?.classList.add('active'); });
   btn.addEventListener('mouseleave', () => { ring?.classList.remove('active'); dot?.classList.remove('active'); });
 
   btn.addEventListener('click', () => {
     if (!audio.paused) {
+      // Déjà en lecture → on arrête
       audio.pause();
       audio.currentTime = 0;
       btn.classList.remove('playing');
       return;
     }
-    // Stopper tous les autres avant
+
+    // Stoppe tous les autres sons avant de jouer celui-ci
     document.querySelectorAll('.mk-btn').forEach(b => {
       const a = document.getElementById(b.dataset.audio);
       if (a && !a.paused) { a.pause(); a.currentTime = 0; }
       b.classList.remove('playing');
     });
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-    btn.classList.add('playing');
 
-    // Ripple coloré selon la variante
-    const variant = [...btn.classList].find(c => c.startsWith('mk-btn--'));
+    audio.currentTime = 0;
+    audio.play().catch(() => {}); // .catch() évite une erreur si l'audio est bloqué
+    btn.classList.add('playing'); // déclenche l'animation mkPulse en CSS
+
+    // Ripple coloré centré sur le bouton
+    const variant    = [...btn.classList].find(c => c.startsWith('mk-btn--'));
     const rippleColor = MK_RIPPLE_COLORS[variant] || 'rgba(220,0,0,0.35)';
     const r   = btn.getBoundingClientRect();
     const sz  = Math.max(r.width, r.height);
@@ -270,6 +332,7 @@ document.querySelectorAll('.mk-btn').forEach(btn => {
     rip.addEventListener('animationend', () => rip.remove());
   });
 
+  // Retire .playing quand la piste se termine naturellement
   audio.addEventListener('ended', () => { btn.classList.remove('playing'); });
 });
 
@@ -280,30 +343,37 @@ document.querySelectorAll('.mk-btn').forEach(btn => {
 
 /* ================================================
    KONAMI CODE — easter egg
+   — Secrètement, tape ↑↑↓↓←→←→ B A pour activer !
+   — kpos suit ton avancement dans la séquence.
    ================================================ */
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-let kpos = 0;
+let kpos = 0; // 0 = début de la séquence
 
 document.addEventListener('keydown', e => {
+  // Bonne touche → avance. Mauvaise touche → repart à 0.
   kpos = (e.key === KONAMI[kpos]) ? kpos + 1 : 0;
-  if (kpos === KONAMI.length) { kpos = 0; triggerKonami(); }
+  if (kpos === KONAMI.length) { kpos = 0; triggerKonami(); } // séquence complète !
 });
 
 function triggerKonami() {
+  // Flash "ULTRA INSTINCT" au centre de l'écran
   const flash = document.createElement('div');
   flash.className = 'konami-flash';
   flash.textContent = 'ULTRA INSTINCT ACTIVATED';
   document.body.appendChild(flash);
-  setTimeout(() => flash.remove(), 3500);
+  setTimeout(() => flash.remove(), 3500); // disparait après 3.5 s
 
+  // 55 étincelles colorées à des positions aléatoires
   for (let i = 0; i < 55; i++) {
     const sp = document.createElement('div');
     sp.className = 'konami-spark';
+    // --hue est une propriété CSS personnalisée utilisée par @keyframes sparkFly
     sp.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*100}vh;--hue:${Math.floor(Math.random()*360)};animation-delay:${(Math.random()*0.6).toFixed(2)}s`;
     document.body.appendChild(sp);
     setTimeout(() => sp.remove(), 1800);
   }
 
+  // Avatar arc-en-ciel 3 secondes puis retour à l'animation normale
   const av = document.querySelector('.avatar');
   if (av) {
     av.style.animation = 'rainbowBorder 0.5s linear 6, avatarPulse 3s ease-in-out infinite';
@@ -313,10 +383,14 @@ function triggerKonami() {
 
 /* ================================================
    COMPTEUR DE VISITES (localStorage)
+   — localStorage = mini-stockage dans le navigateur.
+   — Il persiste après fermeture (pas de serveur).
+   — ATTENTION : c'est local, pas un vrai compteur global.
    ================================================ */
 const vc = document.getElementById('visit-count');
 if (vc) {
+  // Lit le ancien nombre, ajoute 1, sauvegarde, affiche
   const n = (parseInt(localStorage.getItem('visits') || '0') + 1);
   localStorage.setItem('visits', n);
-  vc.textContent = n.toLocaleString();
+  vc.textContent = n.toLocaleString(); // ex: 1 234 avec séparateur
 }

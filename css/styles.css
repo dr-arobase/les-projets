@@ -1,40 +1,191 @@
-/* Google Fonts chargée via <link> dans le HTML */
+/* ==========================================================
+   styles.css — @dr.arobase
+   Feuille de style principale du portfolio
 
+   TABLE DES MATIÈRES
+   ----------------------------------------------------------
+   1.  Variables (couleurs, tailles réutilisables)
+   2.  Reset de base
+   3.  Scrollbar personnalisé
+   4.  Body et fond d'écran
+   5.  Décors de fond : particules, orbes, scanlines
+   6.  Curseur personnalisé
+   7.  Barre de progression du scroll
+   8.  Mise en page : page-wrapper, header, main, footer
+   9.  Typographie : h1, h2, h3, textes
+   10. Avatar (photo de profil)
+   11. Badge de statut "en ligne"
+   12. Tags / Compétences
+   13. Titre de section (section-label)
+   14. Grille de projets (project-card)
+   15. Effets de survol : Ripple + Tilt (partie CSS)
+   16. Animation de révélation (scroll)
+   17. Icônes sociales
+   18. Effet de titre glitch
+   19. Lien katana (animation de coupure)
+   20. Boutons Mortal Kombat
+   21. Easter egg Konami Code
+   22. Animations @keyframes générales
+   23. Responsive mobile (≤ 768px)
+   24. Écrans tactiles (désactive curseur + particules)
+   25. Accessibilité (focus clavier)
+   ========================================================== */
+
+
+/* ==========================================================
+   1. VARIABLES
+   — Définir les couleurs ici évite les répétitions.
+     Si tu veux changer une couleur, tu n'as qu'un seul
+     endroit à modifier.
+   ========================================================== */
+:root {
+    /* Couleurs néon principales */
+    --cyan:   #00ffcc;
+    --violet: #7b2fff;
+    --pink:   #ff00aa;
+    --blue:   #1da1f2;
+    --green:  #00ff96;
+
+    /* Texte */
+    --text:       #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --text-dim:   rgba(255, 255, 255, 0.3);
+
+    /* Fond des cartes (transparent pour laisser voir le fond) */
+    --card-bg:     rgba(255, 255, 255, 0.02);
+    --card-border: rgba(255, 255, 255, 0.06);
+
+    /* Polices */
+    --font-main: 'Space Grotesk', 'Segoe UI', Tahoma, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Coins arrondis réutilisables */
+    --radius:     14px;
+    --radius-sm:   8px;
+    --radius-pill: 999px;
+}
+
+
+/* ==========================================================
+   2. RESET DE BASE
+   — Supprime les marges/paddings par défaut des navigateurs
+     et force box-sizing: border-box (plus facile à gérer).
+   ========================================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+/* ==========================================================
+   3. SCROLLBAR PERSONNALISÉE (Chrome / Edge / Safari)
+   ========================================================== */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffcc, #7b2fff);
+    background: linear-gradient(180deg, var(--cyan), var(--violet));
     border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #00ffcc, #ff00aa); }
-
-body {
-    font-family: 'Space Grotesk', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* slightly lighter overlay so background image shows through */
-    background: linear-gradient(160deg, rgba(12, 2, 30, 0.82) 0%, rgba(0, 0, 0, 0.86) 100%), url('../asserts/images/chainsaw-man.gif') center/cover fixed;
-    min-height: 100vh;
-    color: #fff;
-    cursor: none;
-    overflow-x: hidden;
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--cyan), var(--pink));
 }
 
-/* Curseur personnalisé */
+/* ==========================================================
+   4. BODY ET FOND D'ÉCRAN
+   — Image GIF en fond avec filtre sombre pour lisibilité.
+   ========================================================== */
+body {
+    font-family: var(--font-main);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none; /* caché car on utilise notre propre curseur */
+    background:
+        linear-gradient(160deg, rgba(12, 2, 30, 0.82) 0%, rgba(0, 0, 0, 0.86) 100%),
+        url('../asserts/images/chainsaw-man.gif') center / cover fixed;
+}
+
+/* ==========================================================
+   5. DÉCORS DE FOND
+   ========================================================== */
+
+/* --- Canvas particules (dessiné par script.js) --- */
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+}
+
+/* --- Orbes flottants (cercles flous colorés) --- */
+.bg-orbs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+}
+
+.orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--violet), transparent);
+    top: -150px; left: -100px;
+    animation: floatOrb 12s ease-in-out infinite;
+}
+.orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, var(--cyan), transparent);
+    bottom: 10%; right: -100px;
+    animation: floatOrb 16s ease-in-out infinite reverse;
+}
+.orb-3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, var(--pink), transparent);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: floatOrb 20s ease-in-out infinite 4s;
+}
+
+/* --- Scanlines (effet écran CRT rétro) --- */
+.scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0.7;
+}
+
+
+/* ==========================================================
+   6. CURSEUR PERSONNALISÉ
+   — Deux éléments : un anneau avec retard + un point précis.
+   ========================================================== */
 .custom-cursor {
     position: fixed;
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(0,255,255,0.8);
+    border: 2px solid rgba(0, 255, 255, 0.8);
     border-radius: 50%;
     pointer-events: none;
     transform: translate(-50%, -50%);
-    transition: width 0.2s ease, height 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    transition: width 0.2s ease, height 0.2s ease, background 0.2s ease;
     z-index: 99999;
     mix-blend-mode: difference;
 }
@@ -63,96 +214,25 @@ body {
     box-shadow: 0 0 6px rgba(255,255,255,0.8);
 }
 
-/* Barre de progression scroll */
+/* ==========================================================
+   7. BARRE DE PROGRESSION DU SCROLL
+   ========================================================== */
 .scroll-progress {
     position: fixed;
     top: 0;
     left: 0;
     height: 2px;
     width: 0%;
-    background: linear-gradient(90deg, #00ffcc, #7b2fff, #ff00aa);
+    background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
     z-index: 100001;
-    box-shadow: 0 0 8px rgba(0,255,204,0.7), 0 0 16px rgba(123,47,255,0.4);
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.7);
     transition: width 0.08s linear;
 }
 
-/* Scanlines CRT */
-.scanlines {
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 4;
-    opacity: 0.7;
-}
-
-/* Canvas particules */
-#particles {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-}
-
-/* Orbes flottants */
-.bg-orbs {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.18;
-}
-
-.orb-1 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, #7b2fff, transparent);
-    top: -150px;
-    left: -100px;
-    animation: floatOrb 12s ease-in-out infinite;
-}
-
-.orb-2 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, #00ffcc, transparent);
-    bottom: 10%;
-    right: -100px;
-    animation: floatOrb 16s ease-in-out infinite reverse;
-}
-
-.orb-3 {
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, #ff00aa, transparent);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation: floatOrb 20s ease-in-out infinite 4s;
-}
-
-@keyframes floatOrb {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%       { transform: translate(40px, -30px) scale(1.08); }
-    66%       { transform: translate(-30px, 40px) scale(0.95); }
-}
-
+/* ==========================================================
+   8. MISE EN PAGE PRINCIPALE
+   — Conteneur centré, header, main, footer alignés en colonne.
+   ========================================================== */
 .page-wrapper {
     max-width: 700px;
     margin: 0 auto;
@@ -202,10 +282,15 @@ footer {
     letter-spacing: 1px;
 }
 #visit-count {
-    color: rgba(0,255,204,0.55);
-    font-family: 'JetBrains Mono', monospace;
+    color: rgba(0, 255, 204, 0.55);
+    font-family: var(--font-mono);
 }
 
+
+/* ==========================================================
+   9. TYPOGRAPHIE
+   — Tailles et styles des titres et textes du site.
+   ========================================================== */
 h1 {
     font-size: 2.8em;
     color: #fff;
@@ -248,7 +333,7 @@ h3 {
 .typing::after {
     content: '|';
     animation: blink 0.7s step-end infinite;
-    color: #00ffcc;
+    color: var(--cyan);
     margin-left: 2px;
 }
 
@@ -278,7 +363,16 @@ h3 {
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
 }
 
-/* Project grid */
+/* ==========================================================
+   13. SECTION LABEL (ligne décorative + texte)
+   ========================================================== */
+/* .section-label déjà déclaré au-dessus (typo) */
+
+
+/* ==========================================================
+   14. GRILLE DE PROJETS
+   — Cartes cliquables avec effet tilt + ripple.
+   ========================================================== */
 .project-grid {
     width: 100%;
     display: flex;
@@ -286,7 +380,11 @@ h3 {
     gap: 12px;
 }
 
-/* Reveal animation */
+/* ==========================================================
+   15. ANIMATION DE RÉVÉLATION AU SCROLL
+   — Les éléments partent invisibles, puis
+     .revealed s'ajoute via IntersectionObserver (script.js).
+   ========================================================== */
 [data-reveal] {
     opacity: 0;
     transform: translateY(28px);
@@ -297,7 +395,9 @@ h3 {
     transform: translateY(0);
 }
 
-/* Ripple */
+/* ==========================================================
+   14b. CARTE DE PROJET
+   ========================================================== */
 .project-card {
     display: flex;
     align-items: center;
@@ -353,7 +453,10 @@ h3 {
 
 .project-card:hover::before { opacity: 1; }
 
-/* Ripple */
+/* ==========================================================
+   16. EFFECT RIPPLE (clic sur carte)
+   — Un cercle qui s'étend depuis l'endroit clé.
+   ========================================================== */
 .ripple {
     position: absolute;
     border-radius: 50%;
@@ -429,6 +532,18 @@ h3 {
 .project-card:nth-child(3) { animation-delay: 0.19s; }
 .project-card:nth-child(4) { animation-delay: 0.26s; }
 .project-card:nth-child(5) { animation-delay: 0.33s; }
+/* ==========================================================
+   22. ANIMATIONS @keyframes
+   — Définitions réutilisables pour les animations CSS.
+   ========================================================== */
+
+/* Orbes flottants */
+@keyframes floatOrb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(40px, -30px) scale(1.08); }
+    66%       { transform: translate(-30px, 40px) scale(0.95); }
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -462,19 +577,67 @@ h3 {
     }
 }
 
+/* ==========================================================
+   23. RESPONSIVE MOBILE (≤ 768 px)
+   — Ajustements pour les écrans téléphone / tablette.
+   ========================================================== */
 @media (max-width: 768px) {
     .page-wrapper { padding: 40px 16px 30px; gap: 28px; }
     h1 { font-size: 2em; }
     .project-card { padding: 16px 18px; gap: 14px; }
     .project-title { font-size: 0.95rem; }
+    /* Smaller avatar on mobile */
+    .avatar { width: 140px; height: 140px; margin: 12px auto; }
+    /* Reduce orb sizes and hide heavy visual effects */
+    .orb-1 { width: 240px; height: 240px; top: -80px; left: -40px; filter: blur(60px); }
+    .orb-2 { width: 200px; height: 200px; right: -40px; bottom: 8%; }
+    .orb-3 { width: 160px; height: 160px; }
+    /* Make social icons slightly smaller to fit */
+    .socials a { font-size: 1.6rem; gap: 12px; }
+    /* Make MK buttons more touch-friendly */
+    .mk-btn { min-width: 120px; padding: 14px 16px; }
+    .mk-row { gap: 10px; }
+    /* Simplify background on small screens (avoid heavy fixed backgrounds)
+       and reduce scanline opacity for readability */
+    body { background-attachment: scroll; background-position: center top; }
+    .scanlines { opacity: 0.15; }
 }
 
+/* ==========================================================
+   24. ÉCRANS TACTILES
+   — Désactive le curseur personnalisé et les particules
+     sur mobile (pas de survol, pointeur grossier).
+   ========================================================== */
+@media (hover: none), (pointer: coarse) {
+    .custom-cursor, .cursor-dot { display: none !important; }
+    body { cursor: auto; }
+    #particles { display: none !important; }
+    .scanlines { opacity: 0.12; }
+}
+
+/* ==========================================================
+   25. ACCESSIBILITÉ — Focus clavier
+   — Quand on navigue au clavier, cet effet montre
+     quel élément est sélectionné.
+   ========================================================== */
+:where(a, button, .project-card):focus-visible {
+    outline: 3px solid rgba(0,255,204,0.18);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(0,255,204,0.03);
+}
+
+
+/* ==========================================================
+   17. ICÔNES SOCIALES
+   — Chaque icône change de couleur au survol selon
+     la plateforme grâce à l'attribut [data-social].
+   ========================================================== */
 .socials {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 8px;
 }
 
 .socials a {
@@ -511,8 +674,13 @@ h3 {
 .socials a[data-social="slack"]:hover         { color: #e01e5a; }
 .socials a[data-social="stack-overflow"]:hover { color: #f48024; }
 .socials a[data-social="rss"]:hover           { color: #f26522; }
-.socials a[data-social="email"]:hover         { color: #00ffcc; }
+.socials a[data-social="email"]:hover         { color: var(--cyan); }
 
+
+/* ==========================================================
+   10. AVATAR (photo de profil)
+   — Cercle avec lueur animée qui pulse lentement.
+   ========================================================== */
 .avatar {
     width: 260px;
     height: 260px;
@@ -542,7 +710,11 @@ h3 {
     }
 }
 
-/* Glitch effect */
+/* ==========================================================
+   18. EFFET GLITCH (titre principal)
+   — Deux pseudo-éléments ::before et ::after bougent
+     décalés pour simuler un glitch électronique.
+   ========================================================== */
 .glitch-wrapper {
    width: 100%;
    height: 100%;
@@ -611,7 +783,11 @@ h3 {
 }
 
 
-/*** link coupper katana**/
+/* ==========================================================
+   19. LIEN KATANA (animation de coupure)
+   — Le texte se sépare en deux comme coupé par une lâme.
+     .link--top = partie haute, .link--bottom = partie basse.
+   ========================================================== */
 .link {
   position: relative;
   padding: 0;
@@ -714,9 +890,11 @@ Good for menu buttons though, this would use a transform animation instead of a 
   transform: rotateZ(-2.1deg) scaleX(100%);
 }
 
-/* =============================================
-   BOUTONS MORTAL KOMBAT
-   ============================================= */
+/* ==========================================================
+   20. BOUTONS MORTAL KOMBAT
+   — Chaque bouton joue un son MK. L'animation .playing
+     pulse la lueur pendant la lecture audio.
+   ========================================================== */
 .mk-buttons {
     width: 100%;
     display: flex;
@@ -930,9 +1108,10 @@ Good for menu buttons though, this would use a transform animation instead of a 
 }
 .mk-btn--copa.playing { animation: mkPulsePink 0.7s ease-in-out infinite alternate; }
 
-/* =============================================
-   STATUS BADGE
-   ============================================= */
+/* ==========================================================
+   11. BADGE DE STATUT "EN LIGNE"
+   — Petit badge vert animé qui indique ton statut actuel.
+   ========================================================== */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -962,9 +1141,10 @@ Good for menu buttons though, this would use a transform animation instead of a 
     50%       { opacity: 0.4; box-shadow: 0 0 18px rgba(0,255,150,0.3); }
 }
 
-/* =============================================
-   TAGS / COMPÉTENCES
-   ============================================= */
+/* ==========================================================
+   12. TAGS / COMPÉTENCES
+   — Petites pilules colorées qui s'élèvent au survol.
+   ========================================================== */
 .tags-row {
     display: flex;
     flex-wrap: wrap;
@@ -992,9 +1172,10 @@ Good for menu buttons though, this would use a transform animation instead of a 
 .tag--white   { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); }
 .tag--blue    { color: #1da1f2; border-color: rgba(29,161,242,0.3); background: rgba(29,161,242,0.05); }
 
-/* =============================================
-   KONAMI CODE
-   ============================================= */
+/* ==========================================================
+   21. EASTER EGG KONAMI CODE
+   — ↑↑↓↓←→←→ B A = flash + étincelles colorées.
+   ========================================================== */
 .konami-flash {
     position: fixed;
     top: 50%;
